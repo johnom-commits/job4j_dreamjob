@@ -12,11 +12,17 @@ import java.io.IOException;
 
 public class CandidateServlet extends HttpServlet {
     @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        req.setAttribute("candidates", Store.instOf().findAllCandidates());
+        req.getRequestDispatcher("candidates.jsp").forward(req, resp);
+    }
+
+    @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         req.setCharacterEncoding("UTF-8");
         String id = req.getParameter("id");
         var candidate = new Candidate(Integer.parseInt(id), req.getParameter("name"));
         Store.instOf().save(candidate);
-        resp.sendRedirect(req.getContextPath() + "/candidates.jsp");
+        resp.sendRedirect(req.getContextPath() + "/candidates.do");
     }
 }
