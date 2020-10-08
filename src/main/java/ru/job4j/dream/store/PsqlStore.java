@@ -6,11 +6,12 @@ import ru.job4j.dream.model.Candidate;
 import ru.job4j.dream.model.Post;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -75,7 +76,9 @@ public class PsqlStore implements Store {
         ) {
             try (ResultSet it = ps.executeQuery()) {
                 while (it.next()) {
-                    candidates.add(new Candidate(it.getInt("id"), it.getString("name")));
+                    Candidate can = new Candidate(it.getInt("id"), it.getString("name"));
+                    can.setPhotoId(it.getInt("photoId"));
+                    candidates.add(can);
                 }
             }
         } catch (Exception e) {
@@ -121,9 +124,10 @@ public class PsqlStore implements Store {
 
     private Candidate create(Candidate candidate) {
         try (Connection cn = pool.getConnection();
-             PreparedStatement ps = cn.prepareStatement("INSERT INTO candidate(name) VALUES (?)", PreparedStatement.RETURN_GENERATED_KEYS)
+             PreparedStatement ps = cn.prepareStatement("INSERT INTO candidate(name, photoid) VALUES (?, ?)", PreparedStatement.RETURN_GENERATED_KEYS)
         ) {
             ps.setString(1, candidate.getName());
+            ps.setInt(2, candidate.getPhotoId());
             ps.execute();
             try (ResultSet id = ps.getGeneratedKeys()) {
                 if (id.next()) {
@@ -134,6 +138,21 @@ public class PsqlStore implements Store {
             e.printStackTrace();
         }
         return candidate;
+    }
+
+    public int getNewPhotoId() {
+        try (var con = pool.getConnection();
+             var ps = con.prepareStatement("INSERT INTO phote DEFAULT VALUES RETURNING id")
+        ) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
     }
 
     private void update(Post post) {
@@ -150,10 +169,70 @@ public class PsqlStore implements Store {
 
     private void update(Candidate candidate) {
         try (var cn = pool.getConnection();
-             var ps = cn.prepareStatement("UPDATE candidate SET name = (?) WHERE id = (?)")
+             var ps = cn.prepareStatement("UPDATE candidate SET (name, photoid) = (?, ?) WHERE id = (?)")
         ) {
             ps.setString(1, candidate.getName());
-            ps.setInt(2, candidate.getId());
+            ps.setInt(2, candidate.getPhotoId());
+            ps.setInt(3, candidate.getId());
+            ps.execute();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void deleteCandidate(int id) {
+        int photoId = getPhotoId(id);
+        deleteItemFromDB(id);
+        deleteImageFromDisk(photoId);
+        deletePhotoId(photoId);
+    }
+
+    private void deletePhotoId(int photoId) {
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement("DELETE FROM phote WHERE id = (?)")
+        ) {
+            ps.setInt(1, photoId);
+            ps.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void deleteImageFromDisk(int photoId) {
+        if (photoId == 0) {
+            return;
+        }
+        String fileName = photoId + ".jpg";
+        String file = new File("images").getAbsolutePath() + File.separator + fileName;
+        try {
+            Files.delete(Paths.get(file));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int getPhotoId(int id) {
+        int photoId = 0;
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement("SELECT photoid FROM candidate WHERE id = (?)")
+        ) {
+            ps.setInt(1, id);
+            try (ResultSet it = ps.executeQuery()) {
+                while (it.next()) {
+                    photoId = it.getInt("photoid");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return photoId;
+    }
+
+    private void deleteItemFromDB(int id) {
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement("DELETE FROM candidate WHERE id = (?)")
+        ) {
+            ps.setInt(1, id);
             ps.execute();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -179,7 +258,6 @@ public class PsqlStore implements Store {
     }
 
     @Override
-    @Nullable
     public Candidate findCandidateById(int id) {
         try (var cn = pool.getConnection();
              var ps = cn.prepareStatement("SELECT name FROM candidate WHERE id = (?)")
@@ -193,6 +271,6 @@ public class PsqlStore implements Store {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return null;
+        return new Candidate(0, "");
     }
 }

@@ -1,6 +1,7 @@
 <%@ page contentType="text/html; charset=UTF-8" %>
 <%@ page import="ru.job4j.dream.model.Candidate" %>
 <%@ page import="ru.job4j.dream.store.PsqlStore" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jstl/core" %>
 <!doctype html>
 <html lang="en">
 <head>
@@ -30,6 +31,7 @@
     if (id != null) {
         can = PsqlStore.instOf().findCandidateById(Integer.parseInt(id));
     }
+    String file = (String) request.getAttribute("file");
 %>
 <div class="container pt-3">
     <div class="row">
@@ -42,12 +44,18 @@
                 <% } %>
             </div>
             <div class="card-body">
-                <form action="<%=request.getContextPath()%>/candidates.do?id=<%=can.getId()%>" method="post">
+                <form action="<%=request.getContextPath()%>/candidates.do?id=<%=can.getId()%>&file=<%=file%>"
+                      method="post">
                     <div class="form-group">
                         <label>Имя</label>
                         <input type="text" class="form-control" name="name" value="<%=can.getName()%>">
                     </div>
-                    <button type="submit" class="btn btn-primary">Сохранить</button>
+                    <p>
+                        <a href="<%=request.getContextPath()%>/uploadPhoto.do?id=<%=can.getId()%>">Загрузить фото</a>
+                    </p>
+                    <button type="submit" class="btn btn-primary">
+                        Сохранить
+                    </button>
                 </form>
             </div>
         </div>

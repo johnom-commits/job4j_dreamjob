@@ -42,10 +42,19 @@
                     <c:forEach items="${candidates}" var="can">
                         <tr>
                             <td>
-                                <a href='<c:url value="/candidate/edit.jsp?id=${can.id}"/>'>
+                                <a href='<c:url value="/candidate/edit.jsp?id=${can.id}" />'>
                                     <i class="fa fa-edit mr-3"></i>
                                 </a>
-                                <c:out value="${can.name}"/>
+                                <c:out value="${can.name}" />
+                            </td>
+                            <td>
+                                <a href="<c:url value='/download?name=${can.photoId}' />">Download</a>
+                            </td>
+                            <td>
+                                <img src="<c:url value='/download?name=${can.photoId}' />" width="100px" height="100px" alt="Фото кандидата">
+                            </td>
+                            <td>
+                                <a href=" <c:url value='/deleteCan?id=${can.id}' />">Удалить кандидата</a>
                             </td>
                         </tr>
                     </c:forEach>
