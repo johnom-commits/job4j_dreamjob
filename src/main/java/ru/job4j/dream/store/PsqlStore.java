@@ -4,6 +4,7 @@ import org.apache.commons.dbcp2.BasicDataSource;
 import org.jetbrains.annotations.Nullable;
 import ru.job4j.dream.model.Candidate;
 import ru.job4j.dream.model.Post;
+import ru.job4j.dream.model.User;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -185,6 +186,37 @@ public class PsqlStore implements Store {
         deleteItemFromDB(id);
         deleteImageFromDisk(photoId);
         deletePhotoId(photoId);
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement("SELECT * FROM users WHERE email = (?)")
+        ) {
+            ps.setString(1, email);
+            try (ResultSet it = ps.executeQuery()) {
+                if (it.next()) {
+                    return new User(it.getInt("id"), it.getString("login"), it.getString("email"), it.getString("password"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @Override
+    public void save(User user) {
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement("INSERT INTO users(login, email, password) VALUES (?, ?, ?)", PreparedStatement.RETURN_GENERATED_KEYS)
+        ) {
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getEmail());
+            ps.setString(3, user.getPassword());
+            ps.execute();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void deletePhotoId(int photoId) {

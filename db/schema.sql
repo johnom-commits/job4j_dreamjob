@@ -13,3 +13,10 @@ CREATE TABLE phote (
 );
 
 ALTER TABLE candidate ADD COLUMN photoid integer;
+
+CREATE TABLE users(
+   id SERIAL PRIMARY KEY,
+   login TEXT UNIQUE NOT NULL,
+   email TEXT UNIQUE NOT NULL,
+  password TEXT UNIQUE NOT NULL
+);
