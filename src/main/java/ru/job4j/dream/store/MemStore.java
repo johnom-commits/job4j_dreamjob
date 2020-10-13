@@ -2,18 +2,21 @@ package ru.job4j.dream.store;
 
 import ru.job4j.dream.model.Candidate;
 import ru.job4j.dream.model.Post;
+import ru.job4j.dream.model.User;
 
-import java.util.Collection;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MemStore {
-    private static final MemStore INST = new MemStore();
+public class MemStore implements Store {
+    private static final Store INST = new MemStore();
     private static AtomicInteger POST_ID = new AtomicInteger(4);
     private static AtomicInteger CANDIDATE_ID = new AtomicInteger(4);
     private Map<Integer, Post> posts = new ConcurrentHashMap<>();
     private Map<Integer, Candidate> candidates = new ConcurrentHashMap<>();
+    private List<User> list = new ArrayList<>();
+    private User user;
+    private int index;
 
     private MemStore() {
         posts.put(1, new Post(1, "Junior Java Job"));
@@ -24,7 +27,7 @@ public class MemStore {
         candidates.put(3, new Candidate(3, "Senior Java"));
     }
 
-    public static MemStore instOf() {
+    public static Store instOf() {
         return INST;
     }
 
@@ -56,5 +59,40 @@ public class MemStore {
 
     public Candidate findCandidateById(int id) {
         return candidates.get(id);
+    }
+
+    @Override
+    public int getNewPhotoId() {
+        return 0;
+    }
+
+    @Override
+    public void deleteCandidate(int id) {
+
+    }
+
+    @Override
+    public User findByEmail(String email) {
+        return list.stream().
+                filter(user -> user.getEmail().equals(email)).
+                findFirst().orElse(null);
+    }
+
+    @Override
+    public void deleteUser(User user) {
+        list.remove(user);
+    }
+
+    @Override
+    public void changeUserPassword(User user, String newPassword) {
+        index = list.indexOf(user);
+        User user2 = list.get(index);
+        user2.setPassword(newPassword);
+        list.set(index, user2);
+    }
+
+    @Override
+    public void save(User user) {
+        list.add(user);
     }
 }

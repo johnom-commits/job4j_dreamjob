@@ -26,4 +26,8 @@ public interface Store {
     User findByEmail(String email);
 
     void save(User user);
+
+    void deleteUser(User user);
+
+    void changeUserPassword(User user, String newPassword);
 }

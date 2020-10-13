@@ -181,6 +181,16 @@ public class PsqlStore implements Store {
         }
     }
 
+    @Override
+    public void deleteUser(User user) {
+
+    }
+
+    @Override
+    public void changeUserPassword(User user, String newPassword) {
+
+    }
+
     public void deleteCandidate(int id) {
         int photoId = getPhotoId(id);
         deleteItemFromDB(id);
