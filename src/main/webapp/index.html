@@ -7,6 +7,19 @@
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    <script>
+        function validate() {
+            if ($('#name').val() == '') {
+                alert($('#name').attr('title'));
+            }
+            if ($('#surname').val() == '') {
+                alert($('#surname').attr('title'));
+            }
+            if ($('#desc').val() == '') {
+                alert($('#desc').attr('title'));
+            }
+        }
+    </script>
 </head>
 <body>
 
@@ -18,25 +31,25 @@
     <form>
         <div class="form-group">
             <label for="name">Имя:</label>
-            <input type="text" class="form-control" id="name">
+            <input type="text" class="form-control" id="name" title="Введите имя пользователя">
         </div>
         <div class="form-group">
             <label for="surname">Фамилия:</label>
-            <input type="text" class="form-control" id="surname">
+            <input type="text" class="form-control" id="surname" title="Введите фамилию пользователя">
         </div>
         <div class="btn-group btn-group-toggle" data-toggle="buttons">
             <label>Пол:</label></br>
             <label class="btn btn-info active">
-                <input type="radio" name="options" id="option1" autocomplete="off" checked> Мужской
+                <input type="radio" name="options" id="option1" value="male" autocomplete="off" checked> Мужской
             </label>
             <label class="btn btn-info">
-                <input type="radio" name="options" id="option2" autocomplete="off"> Женский
+                <input type="radio" name="options" id="option2" value="female" autocomplete="off"> Женский
             </label>
         </div>
         <p>
         <div class="form-group">
             <label for="desc">Описание:</label>
-            <input type="text" class="form-control" id="desc">
+            <input type="text" class="form-control" id="desc" title="Введите описание">
         </div>
         <table class="table">
             <thead>
@@ -66,6 +79,5 @@
         </table>
     </form>
 </div>
-
 </body>
 </html>
