@@ -19,6 +19,10 @@
                 alert($('#desc').attr('title'));
             }
         }
+        function addRow() {
+            const fio = $('#name').val() + ' ' + $('#surname').val();
+            $('#table tr:last').after('<tr><td>' + fio +'</td><td></td><td></td></tr>');
+        }
     </script>
 </head>
 <body>
@@ -51,7 +55,7 @@
             <label for="desc">Описание:</label>
             <input type="text" class="form-control" id="desc" title="Введите описание">
         </div>
-        <table class="table">
+        <table class="table" id="table">
             <thead>
             <tr>
                 <th>ФИО</th>
@@ -77,6 +81,7 @@
             </tr>
             </tbody>
         </table>
+        <button type="button" class="btn btn-primary" onclick="addRow()">Добавить строку</button>
     </form>
 </div>
 </body>
