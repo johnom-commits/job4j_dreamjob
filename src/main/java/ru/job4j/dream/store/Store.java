@@ -5,6 +5,7 @@ import ru.job4j.dream.model.Post;
 import ru.job4j.dream.model.User;
 
 import java.util.Collection;
+import java.util.List;
 
 public interface Store {
     Collection<Post> findAllPosts();
@@ -30,4 +31,10 @@ public interface Store {
     void deleteUser(User user);
 
     void changeUserPassword(User user, String newPassword);
+
+    List<String> getCities();
+
+    int getIdCity(String name);
+
+    String getNameCity(int id);
 }

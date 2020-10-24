@@ -25,6 +25,10 @@ public class CandidateServlet extends HttpServlet {
         if (!file.equals("null")) {
             candidate.setPhotoId(Integer.parseInt(file));
         }
+        String city = req.getParameter("city");
+        if (!city.equals("Choose the city")) {
+           candidate.setCity(PsqlStore.instOf().getIdCity(city));
+        }
         PsqlStore.instOf().save(candidate);
         resp.sendRedirect(req.getContextPath() + "/candidates.do");
     }

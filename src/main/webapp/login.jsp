@@ -31,15 +31,15 @@
             <div class="card-header">
                 Авторизация
             </div>
-            <div class="card-body">
+            <div class="card-body" id="enter">
                 <form action="<%=request.getContextPath()%>/auth.do" method="post">
                     <div class="form-group">
                         <label>Почта</label>
-                        <input type="text" class="form-control" name="email">
+                        <input type="text" class="form-control" name="email" title="Введите адрес электропочты">
                     </div>
                     <div class="form-group">
                         <label>Пароль</label>
-                        <input type="text" class="form-control" name="password">
+                        <input type="text" class="form-control" name="password" title="Введите пароль">
                     </div>
                     <button type="submit" class="btn btn-primary">Войти</button>
                 </form>
@@ -47,5 +47,18 @@
         </div>
     </div>
 </div>
+<script>
+    document.querySelector('#enter').addEventListener('submit', checkFields);
+
+    function checkFields(event) {
+        if (event.target.email.value === '') {
+            event.preventDefault();
+            alert(event.target.email.title)
+        } else if (event.target.password.value === '') {
+            event.preventDefault();
+            alert(event.target.password.title)
+        }
+    }
+</script>
 </body>
 </html>

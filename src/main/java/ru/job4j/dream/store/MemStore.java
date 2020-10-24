@@ -92,6 +92,21 @@ public class MemStore implements Store {
     }
 
     @Override
+    public List<String> getCities() {
+        return null;
+    }
+
+    @Override
+    public int getIdCity(String name) {
+        return 0;
+    }
+
+    @Override
+    public String getNameCity(int id) {
+        return null;
+    }
+
+    @Override
     public void save(User user) {
         list.add(user);
     }

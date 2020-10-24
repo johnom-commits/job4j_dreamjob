@@ -5,16 +5,12 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <!-- Required meta tags -->
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
           integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
-    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js"
-            integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n"
-            crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js"
             integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo"
             crossorigin="anonymous"></script>
@@ -63,23 +59,51 @@
                 Редактирование кандидата.
                 <% } %>
             </div>
-            <div class="card-body">
+            <div class="card-body" id="candidate">
                 <form action="<%=request.getContextPath()%>/candidates.do?id=<%=can.getId()%>&file=<%=file%>"
                       method="post">
                     <div class="form-group">
-                        <label>Имя</label>
-                        <input type="text" class="form-control" name="name" value="<%=can.getName()%>">
+                        <label for="nameCandidate">Имя</label>
+                        <input type="text" class="form-control" name="name" id="nameCandidate"
+                               value="<%=can.getName()%>" title="Введите имя пользователя">
                     </div>
+                    <p>
+                        <label for="sel">Город</label>
+                        <select class="custom-select custom-select-sm" id="sel" name="city">
+                        </select>
+                    </p>
                     <p>
                         <a href="<%=request.getContextPath()%>/uploadPhoto.do?id=<%=can.getId()%>">Загрузить фото</a>
                     </p>
-                    <button type="submit" class="btn btn-primary">
-                        Сохранить
-                    </button>
+                    <button type="submit" class="btn btn-primary">Сохранить</button>
                 </form>
             </div>
         </div>
     </div>
 </div>
+<script>
+    window.addEventListener('load', loadOptions);
+
+    function loadOptions() {
+        $.ajax({
+            type: "GET",
+            url: 'http://localhost:8080/dreamjob/cities.do',
+            data: 'name=' + <%=can.getCity()%>
+        }).done(function (data) {
+            $('#sel').empty().html(data);
+        }).fail(function (err) {
+            alert(err);
+        })
+    }
+
+    document.querySelector('#candidate').addEventListener('submit', checkName);
+
+    function checkName(event) {
+        if (event.target.name.value === '') {
+            event.preventDefault();
+            alert(event.target.name.title)
+        }
+    }
+</script>
 </body>
 </html>

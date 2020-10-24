@@ -124,11 +124,13 @@ public class PsqlStore implements Store {
     }
 
     private Candidate create(Candidate candidate) {
-        try (Connection cn = pool.getConnection();
-             PreparedStatement ps = cn.prepareStatement("INSERT INTO candidate(name, photoid) VALUES (?, ?)", PreparedStatement.RETURN_GENERATED_KEYS)
+        var sql = "INSERT INTO candidate(name, photoid, city_id) SELECT (?) AS name, (?) AS photoid, id FROM city WHERE id = (?)";
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS);
         ) {
             ps.setString(1, candidate.getName());
             ps.setInt(2, candidate.getPhotoId());
+            ps.setInt(3, candidate.getCity());
             ps.execute();
             try (ResultSet id = ps.getGeneratedKeys()) {
                 if (id.next()) {
@@ -145,6 +147,23 @@ public class PsqlStore implements Store {
         try (var con = pool.getConnection();
              var ps = con.prepareStatement("INSERT INTO phote DEFAULT VALUES RETURNING id")
         ) {
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+
+    public int getIdCity(String name) {
+        try (var con = pool.getConnection();
+             var ps = con.prepareStatement("SELECT id FROM city WHERE name = (?)")
+        ) {
+            ps.setString(1, name);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     return rs.getInt(1);
@@ -302,17 +321,53 @@ public class PsqlStore implements Store {
     @Override
     public Candidate findCandidateById(int id) {
         try (var cn = pool.getConnection();
-             var ps = cn.prepareStatement("SELECT name FROM candidate WHERE id = (?)")
+             var ps = cn.prepareStatement("SELECT name, city_id FROM candidate WHERE id = (?)")
         ) {
             ps.setInt(1, id);
             try (var it = ps.executeQuery()) {
                 if (it.next()) {
-                    return new Candidate(id, it.getString("name"));
+                    Candidate can = new Candidate(id, it.getString("name"));
+                    can.setCity(it.getInt("city_id"));
+                    return can;
                 }
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
         return new Candidate(0, "");
+    }
+
+    @Override
+    public String getNameCity(int id) {
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement("SELECT name FROM city WHERE id = (?)")
+        ) {
+            ps.setInt(1, id);
+            try (var it = ps.executeQuery()) {
+                if (it.next()) {
+                    return it.getString("name");
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
+    }
+
+    @Override
+    public List<String> getCities() {
+        List<String> list = new ArrayList<>();
+        try (var cn = pool.getConnection();
+             var ps = cn.prepareStatement("SELECT name FROM city")
+        ) {
+            try (var it = ps.executeQuery()) {
+                while (it.next()) {
+                    list.add(it.getString("name"));
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return list;
     }
 }

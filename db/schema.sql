@@ -20,3 +20,15 @@ CREATE TABLE users(
    email TEXT UNIQUE NOT NULL,
   password TEXT UNIQUE NOT NULL
 );
+
+CREATE TABLE city(
+    id SERIAL PRIMARY KEY,
+    name TEXT UNIQUE NOT NULL
+);
+
+ALTER TABLE candidate ADD COLUMN city_id integer;
+
+INSERT INTO city (name) VALUES ('Moscow');
+INSERT INTO city (name) VALUES ('Sochi');
+INSERT INTO city (name) VALUES ('Vladivostok');
+
